@@ -1,15 +1,17 @@
 class DogsController < ApplicationController
   before_action :set_dog, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_user!, only: [:edit, :update, :destroy]
 
   # GET /dogs
   # GET /dogs.json
   def index
-    @dogs = Dog.all
+    @dogs = Dog.page params[:page]
   end
 
   # GET /dogs/1
   # GET /dogs/1.json
   def show
+    @current_user_is_owner = current_user_is_owner?
   end
 
   # GET /dogs/new
@@ -19,6 +21,7 @@ class DogsController < ApplicationController
 
   # GET /dogs/1/edit
   def edit
+    redirect_wrongful_owner
   end
 
   # POST /dogs
@@ -65,14 +68,33 @@ class DogsController < ApplicationController
     end
   end
 
+  def current_user_is_owner? 
+    false unless current_user.present?
+    current_user.id == @dog.user_id
+  end
+
+  def mismatch_current_user? 
+    !current_user_is_owner?
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_dog
       @dog = Dog.find(params[:id])
     end
 
+    def user_is_owner 
+      @current_user_is_owner = current_user_is_owner? 
+    end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def dog_params
       params.require(:dog).permit(:name, :description, :images)
+    end
+
+    def redirect_wrongful_owner
+      if mismatch_current_user? 
+        redirect_to "/", notice: "You are not that dog's owner!!!"
+      end
     end
 end
