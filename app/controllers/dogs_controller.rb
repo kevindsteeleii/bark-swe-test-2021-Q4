@@ -70,7 +70,7 @@ class DogsController < ApplicationController
 
   def current_user_is_owner? 
     false unless current_user.present?
-    current_user.id == @dog.user_id
+    current_user&.id == @dog.user_id && @dog.user_id.class.name == "Integer"
   end
 
   def mismatch_current_user? 
