@@ -11,6 +11,7 @@ class DogsController < ApplicationController
   # GET /dogs/1
   # GET /dogs/1.json
   def show
+    @current_user = current_user
     @current_user_is_owner = current_user_is_owner?
   end
 
@@ -89,7 +90,7 @@ class DogsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def dog_params
-      params.require(:dog).permit(:name, :description, :images)
+      params.require(:dog).permit(:name, :description, :images, :user_id)
     end
 
     def redirect_wrongful_owner
